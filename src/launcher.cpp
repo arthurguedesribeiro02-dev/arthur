@@ -188,7 +188,7 @@ void OpenLocalProgram(){
 }
 
 void OpenSupportLink(int id){
-  if(id==ID_YOUTUBE){ ShellExecuteW(nullptr,L"open",L"https://youtube.com/@arthur2345-thydf",nullptr,nullptr,SW_SHOWNORMAL); SetStatus(L"Abrindo o canal YouTube de ArthurLeekDev…"); return; }
+  if(id==ID_YOUTUBE){ ShellExecuteW(nullptr,L"open",L"https://youtube.com/@arthur2345-thydf",nullptr,nullptr,SW_SHOWNORMAL); SetStatus(L"Abrindo o canal YouTube de ArthurJALDev_V…"); return; }
   const wchar_t username[]=L"arthur_.12345678";
   if(OpenClipboard(GetActiveWindow())){ EmptyClipboard(); HGLOBAL mem=GlobalAlloc(GMEM_MOVEABLE,(wcslen(username)+1)*sizeof(wchar_t)); if(mem){ void* p=GlobalLock(mem); memcpy(p,username,(wcslen(username)+1)*sizeof(wchar_t)); GlobalUnlock(mem); SetClipboardData(CF_UNICODETEXT,mem); } CloseClipboard(); }
   ShellExecuteW(nullptr,L"open",L"https://discord.gg/VCE3s78bB",nullptr,nullptr,SW_SHOWNORMAL); SetStatus(L"Convite do Discord aberto: discord.gg/VCE3s78bB");
@@ -245,15 +245,15 @@ LRESULT CALLBACK WndProc(HWND h, UINT msg, WPARAM w, LPARAM l){
       RECT card{22,20,r.right-22,270}; PaintRounded(dc,card,PANEL,20);
       if(gBanner){ HDC mem=CreateCompatibleDC(dc); HGDIOBJ old=SelectObject(mem,gBanner); StretchBlt(dc,card.left+3,card.top+3,card.right-card.left-6,card.bottom-card.top-6,mem,0,0,820,450,SRCCOPY); SelectObject(mem,old); DeleteDC(mem); HBRUSH shade=CreateSolidBrush(RGB(19,13,22)); RECT overlay{card.left+3,card.top+3,card.left+390,card.bottom-3}; FillRect(dc,&overlay,shade); DeleteObject(shade); }
       MetallicBorder(dc,card);
-      ChromeText(dc,L"ArthurLeekDev",44,43,14); ChromeText(dc,L"GTA 5 FIVE LITE",44,70,30); Text(dc,L"Launcher rosa cromado • ambiente 3D",44,118,21,RGB(255,157,211),true); Text(dc,L"Valide o ambiente e abra apenas programas escolhidos localmente.",44,160,13,MUTED,false); Text(dc,L"MODO PAISAGEM  •  ARQUIVOS LOCAIS",44,215,10,RGB(220,178,211),true);
+      ChromeText(dc,L"ArthurJALDev_V",44,43,14); ChromeText(dc,L"GTA 5 FIVE LITE",44,70,30); Text(dc,L"Launcher rosa cromado • ambiente 3D",44,118,21,RGB(255,157,211),true); Text(dc,L"Valide o ambiente e abra apenas programas escolhidos localmente.",44,160,13,MUTED,false); Text(dc,L"MODO PAISAGEM  •  ARQUIVOS LOCAIS",44,215,10,RGB(220,178,211),true);
       HPEN shine=CreatePen(PS_SOLID,2,RGB(255,214,238)); HGDIOBJ oldPen=SelectObject(dc,shine); MoveToEx(dc,42,236,nullptr); LineTo(dc,430,236); SelectObject(dc,oldPen); DeleteObject(shine);
       RECT logoCard{495,70,730,260}; PaintRounded(dc,logoCard,RGB(224,64,160),18); MetallicBorder(dc,logoCard);
       if(gLogo){ HDC logoDC=CreateCompatibleDC(dc); HGDIOBJ logoOld=SelectObject(logoDC,gLogo); StretchBlt(dc,510,78,205,158,logoDC,0,0,260,200,SRCCOPY); SelectObject(logoDC,logoOld); DeleteDC(logoDC); }
       // O cartão exibe somente a imagem do emblema; a assinatura permanece no rodapé.
-      Text(dc,L"DIAGNÓSTICO DO AMBIENTE",34,350,10,RGB(255,138,199),true); ChromeText(dc,L"ArthurLeekDev",755,680,12); EndPaint(h,&ps); return 0; }
+      Text(dc,L"DIAGNÓSTICO DO AMBIENTE",34,350,10,RGB(255,138,199),true); ChromeText(dc,L"ArthurJALDev_V",755,680,12); EndPaint(h,&ps); return 0; }
     case WM_DESTROY: KillTimer(h,1); if(gBanner) DeleteObject(gBanner); if(gLogo) DeleteObject(gLogo); PostQuitMessage(0); return 0;
   } return DefWindowProcW(h,msg,w,l);
 }
-int WINAPI wWinMain(HINSTANCE h,HINSTANCE, PWSTR,int show){ gInstance=h; WNDCLASSW wc{}; wc.hInstance=h; wc.lpfnWndProc=WndProc; wc.lpszClassName=L"ArthurJalLauncher"; wc.hCursor=LoadCursor(nullptr,IDC_ARROW); wc.hIcon=LoadIconW(h,MAKEINTRESOURCEW(IDI_CUSTOM)); wc.hbrBackground=(HBRUSH)(COLOR_WINDOW+1); RegisterClassW(&wc); HWND win=CreateWindowExW(0,wc.lpszClassName,L"GTA_V_Compatility_Launcher",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,140,70,950,730,nullptr,nullptr,h,nullptr); ShowWindow(win,show); UpdateWindow(win); MSG m; while(GetMessageW(&m,nullptr,0,0)){TranslateMessage(&m);DispatchMessageW(&m);} return (int)m.wParam; }
+int WINAPI wWinMain(HINSTANCE h,HINSTANCE, PWSTR,int show){ gInstance=h; WNDCLASSW wc{}; wc.hInstance=h; wc.lpfnWndProc=WndProc; wc.lpszClassName=L"ArthurJALDev_V"; wc.hCursor=LoadCursor(nullptr,IDC_ARROW); wc.hIcon=LoadIconW(h,MAKEINTRESOURCEW(IDI_CUSTOM)); wc.hbrBackground=(HBRUSH)(COLOR_WINDOW+1); RegisterClassW(&wc); HWND win=CreateWindowExW(0,wc.lpszClassName,L"ArthurJALDev_V — GTA V Launcher",WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_MINIMIZEBOX,140,70,950,730,nullptr,nullptr,h,nullptr); ShowWindow(win,show); UpdateWindow(win); MSG m; while(GetMessageW(&m,nullptr,0,0)){TranslateMessage(&m);DispatchMessageW(&m);} return (int)m.wParam; }
 
 // Protótipo seguro: não inclui, baixa ou distribui jogos, APKs ou arquivos de terceiros.
