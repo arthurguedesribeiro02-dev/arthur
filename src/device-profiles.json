@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "note": "Perfis heurísticos para configuração do launcher; não são garantia de compatibilidade do jogo.",
+  "tiers": {
+    "4GB": {"ramMin": 4, "ramMax": 5, "resolution": "480p", "texture": "low", "fps": 30, "effects": "off", "renderer": "vulkan-safe"},
+    "6GB": {"ramMin": 6, "ramMax": 7, "resolution": "540p", "texture": "low", "fps": 30, "effects": "low", "renderer": "vulkan-safe"},
+    "8GB": {"ramMin": 8, "ramMax": 11, "resolution": "720p", "texture": "medium", "fps": 30, "effects": "low", "renderer": "vulkan"},
+    "12GB": {"ramMin": 12, "ramMax": 15, "resolution": "720p", "texture": "medium", "fps": 40, "effects": "medium", "renderer": "vulkan"},
+    "16GB": {"ramMin": 16, "ramMax": 23, "resolution": "900p", "texture": "high", "fps": 60, "effects": "medium", "renderer": "vulkan"},
+    "24GB": {"ramMin": 24, "ramMax": 64, "resolution": "1080p", "texture": "high", "fps": 60, "effects": "high", "renderer": "vulkan"}
+  },
+  "models": [
+    {"brand":"Xiaomi/POCO","models":"POCO F5, POCO F6, Xiaomi 13/14","gpu":"Adreno","recommendedTier":"8GB"},
+    {"brand":"RedMagic","models":"RedMagic 8, 9, 10 Pro, 11 Pro","gpu":"Adreno","recommendedTier":"12GB"},
+    {"brand":"Samsung","models":"Galaxy A13, A17, S23, S24, S25","gpu":"Adreno/Mali","recommendedTier":"4GB"},
+    {"brand":"Huawei","models":"Mate, P series, Nova","gpu":"Mali/compatible Vulkan driver","recommendedTier":"6GB"}
+  ],
+  "rules": [
+    "Use ARM64 and Vulkan when available.",
+    "On 4GB devices keep 480p, 30 FPS, low textures and effects off.",
+    "Do not enable frame generation or high-resolution textures automatically.",
+    "Always allow manual override and test on the physical device."
+  ]
+}
