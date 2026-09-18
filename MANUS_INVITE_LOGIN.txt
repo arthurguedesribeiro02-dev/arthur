@@ -1,0 +1,10 @@
+LOGIN MANUS — GTA V LITE LAUNCHER
+
+Convite para entrar ou criar uma conta Manus:
+https://manus.im/invitation/Z7QYEBF7LXE4Z?utm_source=invitation&utm_medium=social&utm_campaign=system_share
+
+O botão Login Manus do launcher abre este endereço no navegador.
+O launcher não recebe nem armazena senha, token ou cookie do Manus.
+O login é realizado diretamente no site manus.im.
+
+Este launcher é público e estático. Não possui backend próprio nem envia credenciais para terceiros.
