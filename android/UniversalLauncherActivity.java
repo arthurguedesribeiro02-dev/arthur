@@ -54,7 +54,7 @@ public final class UniversalLauncherActivity extends Activity {
             "box86", "qemu", "limbo", "bochs", "dosbox", "7zip", "onexplayer", "emulator",
             "pc emulator", "pcem", "virtuabox", "virtualbox", "andronix"
     };
-    private static final String[] REPOSITORY_NAMES = {"ArthurJAL / Launcher", "WinJalBionic Cmod", "Winlator Ludashi", "Winlator Cmod", "Winlator Vanilla", "GameNative", "GameHub / Xiaoji"};
+    private static final String[] REPOSITORY_NAMES = {"ArthurJAL / Launcher", "WinJalBionic Cmod", "Winlator Ludashi", "Winlator Cmod", "Winlator Vanilla", "GameNative", "GameHub / Xiaoji", "CPUID oficial", "CPU-Z oficial", "CPU-Z Android / Play Store", "7-Zip oficial"};
     private static final String[] REPOSITORY_URLS = {
             "https://github.com/arthurguedesribeiro02-dev/arthur",
             "https://github.com/arthurguedesribeiro02-dev/WinJalBionic_Cmod",
@@ -62,7 +62,11 @@ public final class UniversalLauncherActivity extends Activity {
             "https://github.com/coffincolors/winlator",
             "https://github.com/brunodev85/winlator",
             "https://gamenative.app/",
-            "https://gamehub.xiaoji.com/en/"
+            "https://gamehub.xiaoji.com/en/",
+            "https://www.cpuid.com/",
+            "https://www.cpuid.com/softwares/cpu-z.html",
+            "https://play.google.com/store/apps/details?id=com.cpuid.cpu_z&hl=pt_BR",
+            "https://www.7-zip.org/"
     };
 
     private SharedPreferences prefs;
