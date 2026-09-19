@@ -10,3 +10,11 @@ Launcher separado para organizar containers Winlator e importar dados autorizado
 - Winlator Bruno Dev upstream: https://github.com/brunodev85/winlator
 
 Os arquivos em `src/` são o ponto de partida do launcher referenciado. A integração com cada runtime deve ocorrer por importação de container e seleção de binário local autorizado.
+
+## Fork exemplar: Winlator Ludashi
+
+O Winlator Ludashi é usado como fork exemplar no catálogo do launcher. A detecção aceita o pacote `com.winlator.ludashi`, além de nomes visíveis e pastas que contenham `winlator` ou `ludashi`. A implementação Android de referência está em `android/UniversalLauncherActivity.java`.
+
+O repositório não redistribui o APK do Ludashi, jogos, executáveis Windows ou runtimes de terceiros. O launcher apenas detecta instalações autorizadas e mantém cada fork isolado.
+
+O workflow `.github/workflows/weekly-upstream-status.yml` atualiza semanalmente os metadados públicos dos upstreams e grava o resultado em `docs/UPSTREAM_STATUS.json`.
