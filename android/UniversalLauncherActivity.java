@@ -47,7 +47,7 @@ public final class UniversalLauncherActivity extends Activity {
     ));
     private static final String[] EMULATOR_TERMS = {
             "winlator", "ludashi", "cmod", "mali", "frost", "glibc", "proton",
-            "mobox", "gamehub", "horizon", "termux", "exagear", "wine", "box64",
+            "mobox", "gamehub", "xiaoji", "gamenative", "horizon", "termux", "exagear", "wine", "box64",
             "box86", "qemu", "limbo", "bochs", "dosbox", "onexplayer", "emulator",
             "pc emulator", "pcem", "virtuabox", "virtualbox", "andronix"
     };

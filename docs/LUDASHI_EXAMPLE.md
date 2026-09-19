@@ -15,3 +15,12 @@ O workflow `weekly-upstream-status.yml` verifica semanalmente os metadados públ
 ## Repositório upstream de referência
 
 - Winlator Ludashi: <https://github.com/StevenMXZ/Winlator-Ludashi>
+
+## Outros emuladores de PC detectáveis
+
+O catálogo também reconhece, por nome visível, identificador do pacote e pastas externas, os termos `GameNative`, `GameHub`, `Xiaoji`, `Mobox`, `Horizon`, `ExaGear`, `QEMU`, `Limbo`, `Bochs`, `DOSBox`, `Wine`, `Box64` e `Box86`. Isso permite detectar variações que mudam o `applicationId` sem fingir que todas são o mesmo runtime.
+
+- GameNative: <https://gamenative.app/>
+- GameHub/Xiaoji: <https://gamehub.xiaoji.com/en/>
+
+Os sites acima são apenas referências informativas. O launcher não baixa automaticamente os APKs ou runtimes a partir deles.
