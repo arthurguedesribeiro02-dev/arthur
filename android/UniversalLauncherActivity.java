@@ -38,6 +38,7 @@ public final class UniversalLauncherActivity extends Activity {
     private static final long MAX_STORAGE_BYTES = 8L * 1024L * 1024L * 1024L * 1024L;
     private static final int MAX_FORKS = 64;
     private static final int REQUEST_TREE = 4101;
+    private static final String[] REQUIRED_DIRS = {"runtimes", "dxvk", "containers", "wine", "box64", "forks", "forks/winlator-ludashi", "forks/winlator-cmod", "forks/winlator-mali", "forks/winlator-frost", "forks/mobox", "forks/gamenative", "forks/gamehub-xiaoji", "forks/horizon", "forks/exagear", "forks/qemu", "forks/limbo", "forks/bochs", "forks/dosbox", "emuladores-pc", "emuladores-pc/winlator", "emuladores-pc/ludashi", "emuladores-pc/gamenative", "emuladores-pc/gamehub", "emuladores-pc/mobox", "emuladores-pc/exagear", "emuladores-pc/qemu", "emuladores-pc/limbo", "emuladores-pc/bochs", "emuladores-pc/dosbox"};
     private static final String[] CODES = {"pt-BR", "en", "es", "fr", "de", "it", "ru", "ar", "hi", "ja", "ko", "zh-CN"};
     private static final String[] NAMES = {"Português (Brasil)", "English", "Español", "Français", "Deutsch", "Italiano", "Русский", "العربية", "हिन्दी", "日本語", "한국어", "简体中文"};
     private static final Set<String> KNOWN = new HashSet<>(Arrays.asList(
@@ -62,6 +63,8 @@ public final class UniversalLauncherActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         buildUi();
+        String savedTree = prefs.getString(TREE_URI, null);
+        if (savedTree != null) prepareRequiredFolders(Uri.parse(savedTree));
         if (prefs.getString(TREE_URI, null) == null) {
             new android.os.Handler().postDelayed(this::chooseDataFolder, 450);
         }
@@ -127,8 +130,35 @@ public final class UniversalLauncherActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_TREE && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData(); try { getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION); } catch (Exception ignored) {}
-            prefs.edit().putString(TREE_URI, uri.toString()).apply(); refreshExternalData();
+            prefs.edit().putString(TREE_URI, uri.toString()).apply(); prepareRequiredFolders(uri); refreshExternalData();
         }
+    }
+
+    private void prepareRequiredFolders(Uri tree) {
+        new Thread(() -> {
+            int created = 0;
+            for (String name : REQUIRED_DIRS) {
+                try {
+                    String parentId = DocumentsContract.getTreeDocumentId(tree);
+                    String parentPath = name.contains("/") ? name.substring(0, name.lastIndexOf('/')) : null;
+                    if (parentPath != null) {
+                        for (String part : parentPath.split("/")) {
+                            Uri parentChildren = DocumentsContract.buildChildDocumentsUriUsingTree(tree, parentId);
+                            Cursor pc = getContentResolver().query(parentChildren, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME}, "display_name=?", new String[]{part}, null);
+                            if (pc == null || !pc.moveToFirst()) { if (pc != null) pc.close(); parentId = null; break; }
+                            parentId = pc.getString(0); pc.close();
+                        }
+                    }
+                    if (parentId == null) continue;
+                    Uri child = DocumentsContract.buildChildDocumentsUriUsingTree(tree, parentId);
+                    Cursor c = getContentResolver().query(child, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, "display_name=?", new String[]{name}, null);
+                    boolean exists = c != null && c.moveToFirst(); if (c != null) c.close();
+                    if (!exists && DocumentsContract.createDocument(getContentResolver(), DocumentsContract.buildDocumentUriUsingTree(tree, parentId), "vnd.android.document/directory", name.substring(name.lastIndexOf('/') + 1)) != null) created++;
+                } catch (Exception ignored) { }
+            }
+            final int made = created;
+            runOnUiThread(() -> storageStatus.setText(tr("Pasta preparada. Diretórios criados: ", "Folder prepared. Directories created: ") + made + "/" + REQUIRED_DIRS.length + tr("\nOs runtimes devem ser fornecidos separadamente.", "\nRuntimes must be provided separately.")));
+        }).start();
     }
 
     private void refreshExternalData() {
