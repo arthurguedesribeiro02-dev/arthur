@@ -1,6 +1,7 @@
 package com.gtavsource.android;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.Settings;
 import android.view.Gravity;
@@ -38,7 +40,7 @@ public final class UniversalLauncherActivity extends Activity {
     private static final long MAX_STORAGE_BYTES = 8L * 1024L * 1024L * 1024L * 1024L;
     private static final int MAX_FORKS = 64;
     private static final int REQUEST_TREE = 4101;
-    private static final String[] REQUIRED_DIRS = {"runtimes", "dxvk", "containers", "wine", "box64", "forks", "forks/winlator-ludashi", "forks/winlator-cmod", "forks/winlator-mali", "forks/winlator-frost", "forks/mobox", "forks/gamenative", "forks/gamehub-xiaoji", "forks/horizon", "forks/exagear", "forks/qemu", "forks/limbo", "forks/bochs", "forks/dosbox", "emuladores-pc", "emuladores-pc/winlator", "emuladores-pc/ludashi", "emuladores-pc/gamenative", "emuladores-pc/gamehub", "emuladores-pc/mobox", "emuladores-pc/exagear", "emuladores-pc/qemu", "emuladores-pc/limbo", "emuladores-pc/bochs", "emuladores-pc/dosbox"};
+    private static final String[] REQUIRED_DIRS = {"runtimes", "dxvk", "containers", "wine", "box64", "compression", "compression/7zip", "forks", "forks/winlator-ludashi", "forks/winlator-cmod", "forks/winlator-mali", "forks/winlator-frost", "forks/mobox", "forks/gamenative", "forks/gamehub-xiaoji", "forks/horizon", "forks/exagear", "forks/qemu", "forks/limbo", "forks/bochs", "forks/dosbox", "emuladores-pc", "emuladores-pc/winlator", "emuladores-pc/ludashi", "emuladores-pc/gamenative", "emuladores-pc/gamehub", "emuladores-pc/mobox", "emuladores-pc/exagear", "emuladores-pc/qemu", "emuladores-pc/limbo", "emuladores-pc/bochs", "emuladores-pc/dosbox"};
     private static final String[] CODES = {"pt-BR", "en", "es", "fr", "de", "it", "ru", "ar", "hi", "ja", "ko", "zh-CN"};
     private static final String[] NAMES = {"Português (Brasil)", "English", "Español", "Français", "Deutsch", "Italiano", "Русский", "العربية", "हिन्दी", "日本語", "한국어", "简体中文"};
     private static final Set<String> KNOWN = new HashSet<>(Arrays.asList(
@@ -49,8 +51,18 @@ public final class UniversalLauncherActivity extends Activity {
     private static final String[] EMULATOR_TERMS = {
             "winlator", "ludashi", "cmod", "mali", "frost", "glibc", "proton",
             "mobox", "gamehub", "xiaoji", "gamenative", "horizon", "termux", "exagear", "wine", "box64",
-            "box86", "qemu", "limbo", "bochs", "dosbox", "onexplayer", "emulator",
+            "box86", "qemu", "limbo", "bochs", "dosbox", "7zip", "onexplayer", "emulator",
             "pc emulator", "pcem", "virtuabox", "virtualbox", "andronix"
+    };
+    private static final String[] REPOSITORY_NAMES = {"ArthurJAL / Launcher", "WinJalBionic Cmod", "Winlator Ludashi", "Winlator Cmod", "Winlator Vanilla", "GameNative", "GameHub / Xiaoji"};
+    private static final String[] REPOSITORY_URLS = {
+            "https://github.com/arthurguedesribeiro02-dev/arthur",
+            "https://github.com/arthurguedesribeiro02-dev/WinJalBionic_Cmod",
+            "https://github.com/StevenMXZ/Winlator-Ludashi",
+            "https://github.com/coffincolors/winlator",
+            "https://github.com/brunodev85/winlator",
+            "https://gamenative.app/",
+            "https://gamehub.xiaoji.com/en/"
     };
 
     private SharedPreferences prefs;
@@ -107,8 +119,9 @@ public final class UniversalLauncherActivity extends Activity {
 
     private void buildUi() {
         LinearLayout root = new LinearLayout(this); root.setOrientation(LinearLayout.VERTICAL); root.setPadding(24, 18, 24, 18); root.setBackgroundColor(Color.rgb(18, 20, 24));
-        TextView title = text(tr("GTA V — Emuladores de PC", "GTA V — PC Emulators"), 24); title.setTextColor(Color.rgb(120, 190, 255)); root.addView(title, new LinearLayout.LayoutParams(-1, -2));
+        TextView title = text(tr("GTA V — Pro Launcher", "GTA V — Pro Launcher"), 24); title.setTextColor(Color.rgb(120, 190, 255)); root.addView(title, new LinearLayout.LayoutParams(-1, -2));
         TextView intro = text(tr("Launcher universal para Winlator, Winlator Ludashi, Mobox e outros forks. Na primeira abertura, selecione a pasta do sistema/dados para localizar runtimes, containers e DXVK. No Android recente, Android/data e Android/obb são protegidos pelo sistema e podem não aparecer no seletor.", "Universal launcher for Winlator, Winlator Ludashi, Mobox and other forks. On first launch, select the system/data folder to find runtimes, containers and DXVK. On recent Android versions, Android/data and Android/obb are protected by the system and may not appear in the picker."), 14); root.addView(intro, new LinearLayout.LayoutParams(-1, -2));
+        TextView device = text(deviceSummary(), 14); device.setTextColor(Color.rgb(180, 210, 235)); root.addView(device, new LinearLayout.LayoutParams(-1, -2));
         LinearLayout langRow = new LinearLayout(this); langRow.setGravity(Gravity.CENTER_VERTICAL); TextView langLabel = text(tr("Idioma", "Language"), 16); langRow.addView(langLabel, new LinearLayout.LayoutParams(0, -2, 1));
         language = new Spinner(this); ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, NAMES); language.setAdapter(adapter); int selected = 0; for (int i=0;i<CODES.length;i++) if (CODES[i].equals(lang())) selected=i; language.setSelection(selected);
         language.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() { public void onNothingSelected(android.widget.AdapterView<?> p) {} public void onItemSelected(android.widget.AdapterView<?> p, View v, int pos, long id) { if (!CODES[pos].equals(lang())) { prefs.edit().putString(LANG, CODES[pos]).apply(); buildUi(); } } });
@@ -116,10 +129,24 @@ public final class UniversalLauncherActivity extends Activity {
         Button folder = new Button(this); folder.setText(tr("Selecionar pasta do sistema/dados", "Select system/data folder")); folder.setOnClickListener(v -> chooseDataFolder()); root.addView(folder, new LinearLayout.LayoutParams(-1, -2));
         storageStatus = text(tr("Pasta de dados: não selecionada\nLimite do launcher: 8 TiB\nLimite de forks: 64", "Data folder: not selected\nLauncher limit: 8 TiB\nFork limit: 64"), 15); root.addView(storageStatus, new LinearLayout.LayoutParams(-1, -2));
         Button refresh = new Button(this); refresh.setText(tr("Atualizar espaço e forks", "Refresh storage and forks")); refresh.setOnClickListener(v -> refreshExternalData()); root.addView(refresh, new LinearLayout.LayoutParams(-1, -2));
+        Button repos = new Button(this); repos.setText(tr("Abrir repositórios oficiais", "Open official repositories")); repos.setOnClickListener(v -> showRepositories()); root.addView(repos, new LinearLayout.LayoutParams(-1, -2));
         Button gta = new Button(this); gta.setText(tr("Abrir GTA V", "Open GTA V")); gta.setOnClickListener(v -> { try { Intent i = new Intent(); i.setClassName(getPackageName(), "com.gtavsource.android.StoragePermissionActivity"); startActivity(i); } catch (Exception ignored) {} }); root.addView(gta, new LinearLayout.LayoutParams(-1, -2));
         TextView hint = text(tr("Emuladores e forks instalados", "Installed emulators and forks"), 16); root.addView(hint);
         ScrollView scroll = new ScrollView(this); list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL); scroll.addView(list); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
         setContentView(root); scanApps(); refreshExternalData();
+    }
+
+    private void showRepositories() {
+        new AlertDialog.Builder(this).setTitle(tr("Repositórios e projetos", "Repositories and projects"))
+                .setItems(REPOSITORY_NAMES, (dialog, which) -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(REPOSITORY_URLS[which]))); } catch (Exception ignored) {} }).show();
+    }
+
+    private String deviceSummary() {
+        String model = Build.MANUFACTURER + " " + Build.MODEL;
+        String abi = Build.SUPPORTED_ABIS != null && Build.SUPPORTED_ABIS.length > 0 ? Build.SUPPORTED_ABIS[0] : "unknown";
+        boolean pocoF5 = model.toLowerCase(Locale.ROOT).contains("poco f5") || model.toLowerCase(Locale.ROOT).contains("23049pcd8g");
+        String profile = pocoF5 ? tr("Perfil: POCO F5 / Snapdragon 7+ Gen 2 / Adreno / ARM64", "Profile: POCO F5 / Snapdragon 7+ Gen 2 / Adreno / ARM64") : tr("Perfil automático do aparelho", "Automatic device profile");
+        return tr("Aparelho: ", "Device: ") + model + "\n" + tr("Arquitetura: ", "Architecture: ") + abi + " · Android " + Build.VERSION.SDK_INT + "\n" + profile;
     }
 
     private void chooseDataFolder() {
