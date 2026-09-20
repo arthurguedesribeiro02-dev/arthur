@@ -182,8 +182,9 @@ public final class UniversalLauncherActivity extends Activity {
                         }
                     }
                     if (parentId == null) continue;
+                    String leaf = name.substring(name.lastIndexOf('/') + 1);
                     Uri child = DocumentsContract.buildChildDocumentsUriUsingTree(tree, parentId);
-                    Cursor c = getContentResolver().query(child, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, "display_name=?", new String[]{name}, null);
+                    Cursor c = getContentResolver().query(child, new String[]{DocumentsContract.Document.COLUMN_DISPLAY_NAME}, "display_name=?", new String[]{leaf}, null);
                     boolean exists = c != null && c.moveToFirst(); if (c != null) c.close();
                     if (!exists && DocumentsContract.createDocument(getContentResolver(), DocumentsContract.buildDocumentUriUsingTree(tree, parentId), "vnd.android.document/directory", name.substring(name.lastIndexOf('/') + 1)) != null) created++;
                 } catch (Exception ignored) { }
@@ -207,9 +208,10 @@ public final class UniversalLauncherActivity extends Activity {
         String root = DocumentsContract.getTreeDocumentId(tree);
         if (root == null) return out;
         ArrayList<String> stack = new ArrayList<>(); stack.add(root);
-        final int[] projection = {0};
+        Set<String> visited = new HashSet<>();
         while (!stack.isEmpty() && !out.truncated) {
             String documentId = stack.remove(stack.size() - 1);
+            if (documentId == null || !visited.add(documentId)) continue;
             Uri children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, documentId);
             Cursor c = null;
             try {
@@ -234,6 +236,7 @@ public final class UniversalLauncherActivity extends Activity {
                         long size = Math.max(0L, c.getLong(sizeCol));
                         if (out.bytes > Long.MAX_VALUE - size) { out.truncated = true; break; }
                         out.bytes += size;
+                        if (out.bytes > MAX_STORAGE_BYTES) { out.truncated = true; break; }
                     }
                 }
             } catch (Exception ignored) { }
@@ -253,8 +256,8 @@ public final class UniversalLauncherActivity extends Activity {
     private void scanApps() {
         if (list == null) return;
         list.removeAllViews();
-        PackageManager pm = getPackageManager(); Intent query = new Intent(Intent.ACTION_MAIN); query.addCategory(Intent.CATEGORY_LAUNCHER); List<ResolveInfo> infos = pm.queryIntentActivities(query, PackageManager.MATCH_ALL); List<ApplicationInfo> apps = new ArrayList<>();
-        for (ResolveInfo ri : infos) { ApplicationInfo ai=ri.activityInfo.applicationInfo; String pkg=ai.packageName; String label=String.valueOf(pm.getApplicationLabel(ai)); String s=(pkg+" "+label).toLowerCase(Locale.ROOT); boolean system=(ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0; if (!getPackageName().equals(pkg) && !system && (KNOWN.contains(pkg) || matchesEmulatorTerm(s))) apps.add(ai); }
+        PackageManager pm = getPackageManager(); Intent query = new Intent(Intent.ACTION_MAIN); query.addCategory(Intent.CATEGORY_LAUNCHER); List<ResolveInfo> infos = pm.queryIntentActivities(query, PackageManager.MATCH_ALL); List<ApplicationInfo> apps = new ArrayList<>(); Set<String> seenPackages = new HashSet<>();
+        for (ResolveInfo ri : infos) { ApplicationInfo ai=ri.activityInfo.applicationInfo; String pkg=ai.packageName; String label=String.valueOf(pm.getApplicationLabel(ai)); String s=(pkg+" "+label).toLowerCase(Locale.ROOT); boolean system=(ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0; if (!getPackageName().equals(pkg) && !system && seenPackages.add(pkg) && (KNOWN.contains(pkg) || matchesEmulatorTerm(s))) apps.add(ai); }
         Collections.sort(apps, new Comparator<ApplicationInfo>() { public int compare(ApplicationInfo a, ApplicationInfo b) { return String.valueOf(pm.getApplicationLabel(a)).compareToIgnoreCase(String.valueOf(pm.getApplicationLabel(b))); } });
         if (apps.isEmpty()) { list.addView(text(tr("Nenhum fork ou emulador de PC instalado foi encontrado.", "No installed PC fork or emulator was found."), 16)); return; }
         int count=0; for (ApplicationInfo ai : apps) { if (count++ >= MAX_FORKS) break; addCard(pm, ai); }
