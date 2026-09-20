@@ -34,18 +34,19 @@ HBITMAP gLogo=nullptr;
 const COLORREF PINK = RGB(255,79,163), DARK = RGB(19,13,22), PANEL = RGB(38,23,35), MUTED = RGB(205,178,199), WHITE = RGB(255,247,252);
 
 void SetStatus(const std::wstring& text){ SetWindowTextW(gStatus, text.c_str()); }
+std::wstring GameDirectory();
 
 std::wstring EnvironmentReport(){
   SYSTEM_INFO si{}; GetSystemInfo(&si);
   MEMORYSTATUSEX mem{}; mem.dwLength=sizeof(mem); GlobalMemoryStatusEx(&mem);
-  ULARGE_INTEGER freeBytes{}, totalBytes{}, totalFree{}; GetDiskFreeSpaceExW(nullptr,&freeBytes,&totalBytes,&totalFree);
+  ULARGE_INTEGER freeBytes{}, totalBytes{}, totalFree{}; GetDiskFreeSpaceExW(GameDirectory().c_str(),&freeBytes,&totalBytes,&totalFree);
   double freeGB=(double)freeBytes.QuadPart/1073741824.0;
   std::wstringstream s;
   wchar_t cpu[256]{}; HKEY key; if(RegOpenKeyExW(HKEY_LOCAL_MACHINE,L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",0,KEY_READ,&key)==ERROR_SUCCESS){ DWORD size=sizeof(cpu); RegQueryValueExW(key,L"ProcessorNameString",nullptr,nullptr,(LPBYTE)cpu,&size); RegCloseKey(key); }
   s<<L"CPU: "<<(cpu[0]?cpu:L"não informado")<<L"\r\n"
    <<L"Arquitetura: "<<(si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_AMD64?L"x64":si.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_ARM64?L"ARM64":L"compatível")<<L"   •   Núcleos: "<<si.dwNumberOfProcessors<<L"\r\n"
    <<L"RAM total: "<<(mem.ullTotalPhys/1073741824)<<L" GB   •   Uso: "<<mem.dwMemoryLoad<<L"%   •   Livre: "<<(mem.ullAvailPhys/1073741824)<<L" GB\r\n"
-   <<L"Disco C livre: "<<(int)freeGB<<L" GB   •   Container: C:\\Grand Theft Auto V Lite\\Download\r\n"
+   <<L"Disco do container livre: "<<(int)freeGB<<L" GB   •   Container: C:\\Grand Theft Auto V Lite\\Download\r\n"
    <<(freeGB>=50?L"✓ Espaço recomendado disponível":L"! Recomendado liberar espaço antes de criar o container");
   return s.str();
 }
@@ -161,7 +162,7 @@ void LaunchDetectedGame(){
     std::wstring first=FindFirstPart();
     if(!first.empty()){
       std::wstring missing;
-      int lastPart=first.rfind(L".000")!=std::wstring::npos?6:6;
+      constexpr int lastPart=6;
       if(!AllPartsPresent(first,lastPart,missing)){
         std::wstring msg=L"PlayGTA5.exe/PlayGTA.exe não foi encontrado e falta a parte:\n"+missing+L"\n\nColoque todas as partes numeradas na mesma pasta:\n"+GameDirectory();
         MessageBoxW(GetActiveWindow(),msg.c_str(),L"Partes incompletas",MB_OK|MB_ICONWARNING); SetStatus(L"Partes incompletas."); return;
@@ -218,8 +219,8 @@ LRESULT CALLBACK WndProc(HWND h, UINT msg, WPARAM w, LPARAM l){
       gStatus=CreateWindowW(L"STATIC",L"Pronto para começar.",WS_CHILD|WS_VISIBLE,34,585,860,28,h,nullptr,gInstance,nullptr);
       gInfo=CreateWindowW(L"EDIT",L"",WS_CHILD|WS_VISIBLE|WS_BORDER|ES_MULTILINE|ES_READONLY|ES_AUTOVSCROLL|WS_VSCROLL|WS_TABSTOP,34,370,860,200,h,nullptr,gInstance,nullptr); SetWindowTextW(gInfo,EnvironmentReport().c_str());
       SendMessageW(gInfo,WM_SETFONT,(WPARAM)GetStockObject(DEFAULT_GUI_FONT),TRUE);
-      // Atualização rápida de 100 ms; timers de 1 ms não são confiáveis no Winlator/Wine.
-      SetTimer(h,1,100,nullptr);
+      // Atualização de 1 s: reduz uso de CPU sem perder a leitura do ambiente.
+      SetTimer(h,1,1000,nullptr);
       CreateWindowW(L"BUTTON",L"Criar container",WS_CHILD|WS_VISIBLE|BS_OWNERDRAW,34,300,180,46,h,(HMENU)ID_VALIDATE,gInstance,nullptr);
       CreateWindowW(L"BUTTON",L"Abrir Grand Theft Auto V Lite",WS_CHILD|WS_VISIBLE|BS_OWNERDRAW,228,300,245,46,h,(HMENU)ID_PLAY,gInstance,nullptr);
       CreateWindowW(L"BUTTON",L"PlayGTA.exe",WS_CHILD|WS_VISIBLE|BS_OWNERDRAW,487,300,150,46,h,(HMENU)ID_OPEN,gInstance,nullptr);

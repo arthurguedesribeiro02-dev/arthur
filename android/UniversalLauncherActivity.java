@@ -37,8 +37,9 @@ public final class UniversalLauncherActivity extends Activity {
     private static final String PREFS = "universal_launcher";
     private static final String LANG = "language";
     private static final String TREE_URI = "additional_files_uri";
-    private static final long MAX_STORAGE_BYTES = 8L * 1024L * 1024L * 1024L * 1024L;
-    private static final int MAX_FORKS = 64;
+    // Limite lógico do índice: 8 TB decimais, sem limitar o tamanho do APK.
+    private static final long MAX_STORAGE_BYTES = 8_000_000_000_000L;
+    private static final int MAX_FORKS = 512;
     private static final int REQUEST_TREE = 4101;
     private static final String[] REQUIRED_DIRS = {"runtimes", "dxvk", "containers", "wine", "box64", "compression", "compression/7zip", "forks", "forks/winlator-ludashi", "forks/winlator-cmod", "forks/winlator-mali", "forks/winlator-frost", "forks/mobox", "forks/gamenative", "forks/gamehub-xiaoji", "forks/horizon", "forks/exagear", "forks/qemu", "forks/limbo", "forks/bochs", "forks/dosbox", "emuladores-pc", "emuladores-pc/winlator", "emuladores-pc/ludashi", "emuladores-pc/gamenative", "emuladores-pc/gamehub", "emuladores-pc/mobox", "emuladores-pc/exagear", "emuladores-pc/qemu", "emuladores-pc/limbo", "emuladores-pc/bochs", "emuladores-pc/dosbox"};
     private static final String[] CODES = {"pt-BR", "en", "es", "fr", "de", "it", "ru", "ar", "hi", "ja", "ko", "zh-CN"};
@@ -131,7 +132,7 @@ public final class UniversalLauncherActivity extends Activity {
         language.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() { public void onNothingSelected(android.widget.AdapterView<?> p) {} public void onItemSelected(android.widget.AdapterView<?> p, View v, int pos, long id) { if (!CODES[pos].equals(lang())) { prefs.edit().putString(LANG, CODES[pos]).apply(); buildUi(); } } });
         langRow.addView(language, new LinearLayout.LayoutParams(260, -2)); root.addView(langRow);
         Button folder = new Button(this); folder.setText(tr("Selecionar pasta do sistema/dados", "Select system/data folder")); folder.setOnClickListener(v -> chooseDataFolder()); root.addView(folder, new LinearLayout.LayoutParams(-1, -2));
-        storageStatus = text(tr("Pasta de dados: não selecionada\nLimite do launcher: 8 TiB\nLimite de forks: 64", "Data folder: not selected\nLauncher limit: 8 TiB\nFork limit: 64"), 15); root.addView(storageStatus, new LinearLayout.LayoutParams(-1, -2));
+        storageStatus = text(tr("Pasta de dados: não selecionada\nLimite do launcher: 8 TB\nLimite de forks: 512", "Data folder: not selected\nLauncher limit: 8 TB\nFork limit: 512"), 15); root.addView(storageStatus, new LinearLayout.LayoutParams(-1, -2));
         Button refresh = new Button(this); refresh.setText(tr("Atualizar espaço e forks", "Refresh storage and forks")); refresh.setOnClickListener(v -> refreshExternalData()); root.addView(refresh, new LinearLayout.LayoutParams(-1, -2));
         Button repos = new Button(this); repos.setText(tr("Abrir repositórios oficiais", "Open official repositories")); repos.setOnClickListener(v -> showRepositories()); root.addView(repos, new LinearLayout.LayoutParams(-1, -2));
         Button gta = new Button(this); gta.setText(tr("Abrir GTA V", "Open GTA V")); gta.setOnClickListener(v -> { try { Intent i = new Intent(); i.setClassName(getPackageName(), "com.gtavsource.android.StoragePermissionActivity"); startActivity(i); } catch (Exception ignored) {} }); root.addView(gta, new LinearLayout.LayoutParams(-1, -2));
@@ -195,12 +196,12 @@ public final class UniversalLauncherActivity extends Activity {
     private void refreshExternalData() {
         if (storageStatus == null) return;
         final String value = prefs.getString(TREE_URI, null);
-        if (value == null) { storageStatus.setText(tr("Pasta de dados: não selecionada\nLimite do launcher: 8 TiB\nLimite de forks: 64", "Data folder: not selected\nLauncher limit: 8 TiB\nFork limit: 64")); return; }
-        storageStatus.setText(tr("Lendo pasta selecionada...\nLimite do launcher: 8 TiB\nLimite de forks: 64", "Reading selected folder...\nLauncher limit: 8 TiB\nFork limit: 64"));
-        new Thread(() -> { ScanResult result = scanTree(Uri.parse(value)); runOnUiThread(() -> { String state = result.bytes > MAX_STORAGE_BYTES ? tr("LIMITE EXCEDIDO", "LIMIT EXCEEDED") : tr("dentro do limite", "within limit"); String note = result.truncated ? tr("\nVarredura interrompida no limite de segurança; atualize por subpastas.", "\nScan stopped at the safety limit; refresh by subfolder.") : ""; storageStatus.setText(tr("Pasta de dados: selecionada\nTamanho indexado: ", "Data folder: selected\nIndexed size: ") + formatBytes(result.bytes) + tr("\nForks encontrados: ", "\nForks found: ") + result.forks + "/" + MAX_FORKS + tr("\nEstado: ", "\nStatus: ") + state + note); }); }).start();
+        if (value == null) { storageStatus.setText(tr("Pasta de dados: não selecionada\nLimite do launcher: 8 TB\nLimite de forks: 512", "Data folder: not selected\nLauncher limit: 8 TB\nFork limit: 512")); scanApps(); return; }
+        storageStatus.setText(tr("Lendo pasta selecionada...\nLimite do launcher: 8 TB\nLimite de forks: 512", "Reading selected folder...\nLauncher limit: 8 TB\nFork limit: 512"));
+        new Thread(() -> { ScanResult result = scanTree(Uri.parse(value)); runOnUiThread(() -> { String state = result.bytes > MAX_STORAGE_BYTES ? tr("LIMITE EXCEDIDO", "LIMIT EXCEEDED") : tr("dentro do limite", "within limit"); String note = result.truncated ? tr("\nVarredura interrompida no limite de segurança; atualize por subpastas.", "\nScan stopped at the safety limit; refresh by subfolder.") : ""; storageStatus.setText(tr("Pasta de dados: selecionada\nTamanho indexado: ", "Data folder: selected\nIndexed size: ") + formatBytes(result.bytes) + tr("\nForks encontrados: ", "\nForks found: ") + result.forkIds.size() + "/" + MAX_FORKS + tr("\nEstado: ", "\nStatus: ") + state + note); scanApps(); }); }).start();
     }
 
-    private static final class ScanResult { long bytes; int forks; long nodes; boolean truncated; }
+    private static final class ScanResult { long bytes; long nodes; boolean truncated; final Set<String> forkIds = new HashSet<>(); }
     private ScanResult scanTree(Uri tree) {
         ScanResult out = new ScanResult();
         String root = DocumentsContract.getTreeDocumentId(tree);
@@ -227,7 +228,7 @@ public final class UniversalLauncherActivity extends Activity {
                     if (++out.nodes > 1000000L) { out.truncated = true; break; }
                     String id = c.getString(idCol); String name = c.getString(nameCol); String mime = c.getString(mimeCol);
                     if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mime)) {
-                        if (isForkName(name) && out.forks < MAX_FORKS) out.forks++;
+                        if (isForkName(name) && id != null && out.forkIds.size() < MAX_FORKS) out.forkIds.add(id);
                         if (id != null) stack.add(id);
                     } else if (sizeCol >= 0 && !c.isNull(sizeCol)) {
                         long size = Math.max(0L, c.getLong(sizeCol));
@@ -250,7 +251,9 @@ public final class UniversalLauncherActivity extends Activity {
     private String formatBytes(long bytes) { double v=bytes; String[] units={"B","KB","MB","GB","TB"}; int i=0; while(v>=1024 && i<units.length-1){v/=1024;i++;} return String.format(Locale.US,"%.2f %s",v,units[i]); }
 
     private void scanApps() {
-        PackageManager pm = getPackageManager(); Intent query = new Intent(Intent.ACTION_MAIN); query.addCategory(Intent.CATEGORY_LAUNCHER); List<ResolveInfo> infos = pm.queryIntentActivities(query, 0); List<ApplicationInfo> apps = new ArrayList<>();
+        if (list == null) return;
+        list.removeAllViews();
+        PackageManager pm = getPackageManager(); Intent query = new Intent(Intent.ACTION_MAIN); query.addCategory(Intent.CATEGORY_LAUNCHER); List<ResolveInfo> infos = pm.queryIntentActivities(query, PackageManager.MATCH_ALL); List<ApplicationInfo> apps = new ArrayList<>();
         for (ResolveInfo ri : infos) { ApplicationInfo ai=ri.activityInfo.applicationInfo; String pkg=ai.packageName; String label=String.valueOf(pm.getApplicationLabel(ai)); String s=(pkg+" "+label).toLowerCase(Locale.ROOT); boolean system=(ai.flags & ApplicationInfo.FLAG_SYSTEM) != 0; if (!getPackageName().equals(pkg) && !system && (KNOWN.contains(pkg) || matchesEmulatorTerm(s))) apps.add(ai); }
         Collections.sort(apps, new Comparator<ApplicationInfo>() { public int compare(ApplicationInfo a, ApplicationInfo b) { return String.valueOf(pm.getApplicationLabel(a)).compareToIgnoreCase(String.valueOf(pm.getApplicationLabel(b))); } });
         if (apps.isEmpty()) { list.addView(text(tr("Nenhum fork ou emulador de PC instalado foi encontrado.", "No installed PC fork or emulator was found."), 16)); return; }
