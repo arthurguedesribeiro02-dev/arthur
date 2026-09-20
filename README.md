@@ -19,3 +19,4 @@ O repositório não redistribui o APK do Ludashi, jogos, executáveis Windows ou
 
 O workflow `.github/workflows/daily-upstream-status.yml` atualiza diariamente os metadados públicos dos upstreams e grava o resultado em `docs/UPSTREAM_STATUS.json`; cada alteração também aciona a publicação do site no GitHub Pages.
 O limite lógico de armazenamento é **8 TB decimais** e os perfis heurísticos incluem até **24 GB de RAM**. Esses valores não alteram o tamanho do APK nem criam RAM ou armazenamento físico.
+Na implementação Android, a tela inteira usa rolagem vertical suave; a lista de forks e emuladores cresce junto com a página e pode ser percorrida para cima e para baixo.

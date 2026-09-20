@@ -137,8 +137,13 @@ public final class UniversalLauncherActivity extends Activity {
         Button repos = new Button(this); repos.setText(tr("Abrir repositórios oficiais", "Open official repositories")); repos.setOnClickListener(v -> showRepositories()); root.addView(repos, new LinearLayout.LayoutParams(-1, -2));
         Button gta = new Button(this); gta.setText(tr("Abrir GTA V", "Open GTA V")); gta.setOnClickListener(v -> { try { Intent i = new Intent(); i.setClassName(getPackageName(), "com.gtavsource.android.StoragePermissionActivity"); startActivity(i); } catch (Exception ignored) {} }); root.addView(gta, new LinearLayout.LayoutParams(-1, -2));
         TextView hint = text(tr("Emuladores e forks instalados", "Installed emulators and forks"), 16); root.addView(hint);
-        ScrollView scroll = new ScrollView(this); list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL); scroll.addView(list); root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-        setContentView(root); scanApps(); refreshExternalData();
+        list = new LinearLayout(this); list.setOrientation(LinearLayout.VERTICAL);
+        root.addView(list, new LinearLayout.LayoutParams(-1, -2));
+        ScrollView page = new ScrollView(this);
+        page.setFillViewport(true);
+        page.setSmoothScrollingEnabled(true);
+        page.addView(root, new ScrollView.LayoutParams(-1, -2));
+        setContentView(page); scanApps(); refreshExternalData();
     }
 
     private void showRepositories() {
