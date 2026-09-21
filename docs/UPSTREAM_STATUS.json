@@ -1,0 +1,23 @@
+{
+  "updated_at": "2026-09-21T03:26:26.533405+00:00",
+  "repositories": {
+    "ludashi": {
+      "repository": "StevenMXZ/Winlator-Ludashi",
+      "sha": "29373dde819e5cf9b7e30ac2bb5bd97b5aac0cb7",
+      "message": "ui: fix FPS limiter value alignment in RTL",
+      "date": "2026-09-19T21:31:04Z"
+    },
+    "cmod": {
+      "repository": "coffincolors/winlator",
+      "sha": "49bfb90fce932107cf6a7c1af62f910e7a1a2bfd",
+      "message": "fixed custom icons, default renderer, and warning prompt handling on new installs",
+      "date": "2025-08-10T06:35:24Z"
+    },
+    "vanilla": {
+      "repository": "brunodev85/winlator",
+      "sha": "bae41e0c7f5f48df9dadb64b14355440126e7229",
+      "message": "Update submodules",
+      "date": "2026-09-14T14:21:46Z"
+    }
+  }
+}
