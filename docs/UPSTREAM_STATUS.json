@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-22T03:25:40.438273+00:00",
+  "updated_at": "2026-09-23T03:25:50.840959+00:00",
   "repositories": {
     "ludashi": {
       "repository": "StevenMXZ/Winlator-Ludashi",
@@ -15,9 +15,9 @@
     },
     "vanilla": {
       "repository": "brunodev85/winlator",
-      "sha": "bae41e0c7f5f48df9dadb64b14355440126e7229",
-      "message": "Update submodules",
-      "date": "2026-09-14T14:21:46Z"
+      "sha": "b6b2259158cf38d06067c34430d840d56b46d220",
+      "message": "Update README.md",
+      "date": "2026-09-22T18:36:03Z"
     }
   }
 }
