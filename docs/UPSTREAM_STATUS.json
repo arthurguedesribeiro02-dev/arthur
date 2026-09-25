@@ -1,11 +1,11 @@
 {
-  "updated_at": "2026-09-24T03:25:24.195270+00:00",
+  "updated_at": "2026-09-25T03:24:33.390416+00:00",
   "repositories": {
     "ludashi": {
       "repository": "StevenMXZ/Winlator-Ludashi",
-      "sha": "29373dde819e5cf9b7e30ac2bb5bd97b5aac0cb7",
-      "message": "ui: fix FPS limiter value alignment in RTL",
-      "date": "2026-09-19T21:31:04Z"
+      "sha": "b8048ac8d3602fb98494801d26a6a8782fbee3fc",
+      "message": "VulkanRenderer: initialize cursor layout in active command recorder",
+      "date": "2026-09-24T13:49:12Z"
     },
     "cmod": {
       "repository": "coffincolors/winlator",
